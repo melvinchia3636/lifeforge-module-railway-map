@@ -27,7 +27,7 @@ function MapItem({ map }: { map: MapListItem }) {
         flexDirection: 'column',
         gap: '12px'
       }}
-      to={`/railway-map/map/${map.id}`}
+      to={`./map/${map.id}`}
     >
       <MapPreview lines={map.lines} stations={map.stations} />
       <Flex align="center" gap="md">

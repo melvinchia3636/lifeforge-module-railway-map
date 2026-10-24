@@ -31,8 +31,10 @@ function StationsTabContent() {
       )
       .sort((a, b) => {
         if (sort === 'stationCode') {
-          const aCode = filterStationCode(a.codes || [], lineFilter)[0]
-          const bCode = filterStationCode(b.codes || [], lineFilter)[0]
+          const aCode =
+            filterStationCode(a.codes || [], lineFilter)[0] ?? ''
+          const bCode =
+            filterStationCode(b.codes || [], lineFilter)[0] ?? ''
 
           const [, aLetters = '', aNumStr = ''] =
             aCode.match(/^([A-Za-z]+)(\d*)/) ?? []

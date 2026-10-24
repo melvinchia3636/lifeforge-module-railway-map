@@ -39,6 +39,7 @@ function renderStations({
       .on('click', (event: MouseEvent) => {
         event.stopPropagation()
         setSelectedStation(station)
+
         if (centerStation) {
           centerMapOnStation(svgRef, gRef, station, centerStation, 2, 1000)
         }
@@ -77,7 +78,7 @@ function renderStations({
             ? darkMode
               ? '#ffffff'
               : '#000000'
-            : bgTempPalette[darkMode ? 900 : 100]
+            : bgTempPalette[darkMode ? 900 : 100]!
         )
         .attr('stroke-width', isSelected ? 4 : 2)
         .attr('stroke-linejoin', 'round')
@@ -86,16 +87,19 @@ function renderStations({
 
       codes.forEach((code: string, i: number) => {
         const w = boxWidths[i]
+
+        if (w === undefined) return
+
         const line = lines.find(l => {
-          const cleanLineCode = l.code.split(/\d/)[0].toLowerCase()
-          const cleanStationCode = code.split(/\d/)[0].toLowerCase()
+          const cleanLineCode = (l.code.split(/\d/)[0] ?? '').toLowerCase()
+          const cleanStationCode = (code.split(/\d/)[0] ?? '').toLowerCase()
 
           return (
             cleanLineCode.startsWith(cleanStationCode) ||
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-        const color = line?.color || bgTempPalette[darkMode ? 100 : 800]
+        const color = line?.color || bgTempPalette[darkMode ? 100 : 800]!
         const isDarkColor = line ? tinycolor(color).isDark() : false
         const textColor = isDarkColor ? '#ffffff' : '#000000'
 
@@ -137,16 +141,16 @@ function renderStations({
       const line =
         lines.find(l => l.name === station.lines?.[0]) ||
         lines.find(l => {
-          const cleanLineCode = l.code.split(/\d/)[0].toLowerCase()
+          const cleanLineCode = (l.code.split(/\d/)[0] ?? '').toLowerCase()
           const firstCode = station.codes?.[0] || ''
-          const cleanStationCode = firstCode.split(/\d/)[0].toLowerCase()
+          const cleanStationCode = (firstCode.split(/\d/)[0] ?? '').toLowerCase()
 
           return (
             cleanLineCode.startsWith(cleanStationCode) ||
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-      const lineColor = line?.color || bgTempPalette[darkMode ? 100 : 800]
+      const lineColor = line?.color || bgTempPalette[darkMode ? 100 : 800]!
       const isDarkLine = line ? tinycolor(lineColor).isDark() : false
 
       const boxWidth = Math.max(14, textVal.length * 4.2 + 8)
@@ -172,7 +176,7 @@ function renderStations({
             ? darkMode
               ? '#ffffff'
               : '#000000'
-            : bgTempPalette[darkMode ? 900 : 100]
+            : bgTempPalette[darkMode ? 900 : 100]!
         )
         .attr('stroke-width', isSelected ? 2.5 : 1)
         .attr('stroke-linejoin', 'round')

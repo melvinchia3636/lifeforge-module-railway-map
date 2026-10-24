@@ -27,7 +27,7 @@ function CoverageMap({
     const svg = d3.select(svgRef.current)
     svg.selectAll('*').remove()
 
-    if (!lines || lines.length === 0) return
+    if (lines.length === 0) return
 
     let minX = Infinity
     let maxX = -Infinity
@@ -35,8 +35,8 @@ function CoverageMap({
     let maxY = -Infinity
 
     lines.forEach(line => {
-      line.path.forEach(point => {
-        const [x, y] = point
+      line.path.forEach(([x, y]) => {
+        if (x === undefined || y === undefined) return
 
         if (x < minX) minX = x
         if (x > maxX) maxX = x
@@ -45,7 +45,7 @@ function CoverageMap({
       })
     })
 
-    if (stations && stations.length > 0) {
+    if (stations.length > 0) {
       stations.forEach(station => {
         if (station.x < minX) minX = station.x
         if (station.x > maxX) maxX = station.x
@@ -76,7 +76,9 @@ function CoverageMap({
       if (line.path.length === 0) return
 
       const pathData = roundedPolygon(
-        line.path.map(p => ({ x: p[0], y: p[1] })),
+        line.path
+          .filter((p): p is [number, number] => p.length >= 2)
+          .map(([x, y]) => ({ x, y })),
         5
       )
 
@@ -89,7 +91,7 @@ function CoverageMap({
         .attr('stroke-linejoin', 'round')
     })
 
-    if (stations && stations.length > 0) {
+    if (stations.length > 0) {
       stations.forEach(station => {
         const codes =
           station.codes && station.codes.length > 0 ? station.codes : ['']

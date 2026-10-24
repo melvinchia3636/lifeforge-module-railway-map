@@ -11,13 +11,13 @@ function renderLines({
   g: d3.Selection<SVGGElement, unknown, null, undefined>
   lines: MapLine[]
 }) {
-  for (let index = 0; index < lines.length; index++) {
-    const line = lines[index]
-
+  for (const [index, line] of lines.entries()) {
     if (line.path.length === 0) continue
 
     const path = roundedPolygon(
-      line.path.map(p => ({ x: p[0], y: p[1] })),
+      line.path
+        .filter((p): p is [number, number] => p.length >= 2)
+        .map(([x, y]) => ({ x, y })),
       5
     )
 

@@ -16,7 +16,7 @@ function renderStationLabel({
   stationGroup
     .append('text')
     .attr('text-anchor', 'middle')
-    .attr('fill', bgTempPalette[darkMode ? 100 : 800])
+    .attr('fill', bgTempPalette[darkMode ? 100 : 800]!)
     .attr('font-size', 11)
     .attr('font-family', 'LTAIdentityMedium')
     .attr('white-space', 'pre')
@@ -26,8 +26,11 @@ function renderStationLabel({
         i: number,
         nodes: SVGTextElement[] | ArrayLike<SVGTextElement>
       ) => {
-        const textElement = d3.select(nodes[i])
-        const domNode = nodes[i] as SVGTextElement
+        const domNode = nodes[i]
+
+        if (!domNode) return
+
+        const textElement = d3.select(domNode)
 
         const lines = station.name.split('\\n')
 

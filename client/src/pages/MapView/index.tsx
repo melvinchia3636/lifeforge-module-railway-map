@@ -19,10 +19,10 @@ import RailwayMapProvider, {
   useRailwayMapContext
 } from '@/providers/RailwayMapProvider'
 
+import SignCollectionStatusModal from './components/SignCollectionStatusModal'
 import MapTabbedView from './tabs'
 import MapTab from './tabs/MapTab'
 import StationsTab from './tabs/StationsTab'
-import SignCollectionStatusModal from './components/SignCollectionStatusModal';
 
 countries.registerLocale(english)
 
@@ -34,7 +34,7 @@ function MapView() {
 
   return (
     <>
-      <GoBackButton onClick={() => navigate('/railway-map')} />
+      <GoBackButton onClick={() => navigate(-1)} />
       <Flex align="center" gap="lg" justify="between">
         <Flex align="center" gap="md" my="md">
           <Icon icon={`circle-flags:${map.country}`} size="2.5em" />
@@ -56,7 +56,7 @@ function MapView() {
           </Box>
         </Flex>
         <ContextMenu
-          styles={{
+          componentProps={{
             menu: {
               minWidth: '16rem'
             }
@@ -65,7 +65,12 @@ function MapView() {
           <ContextMenuItem
             icon="tabler:percentage"
             label="View Sign Collection Status"
-            onClick={() => open(SignCollectionStatusModal, { stations: map.stations, lines: map.lines })}
+            onClick={() =>
+              open(SignCollectionStatusModal, {
+                stations: map.stations,
+                lines: map.lines
+              })
+            }
           />
         </ContextMenu>
       </Flex>

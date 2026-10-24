@@ -33,17 +33,18 @@ function validateCoords(coords: Coords, imgW: number, imgH: number): string | nu
     coords.topRight,
     coords.bottomRight,
     coords.bottomLeft
-  ]
+  ] as const
 
-  const crossProduct = (o: number, a: number, b: number) =>
-    (points[a].x - points[o].x) * (points[b].y - points[o].y) -
-    (points[a].y - points[o].y) * (points[b].x - points[o].x)
+  const [topLeft, topRight, bottomRight, bottomLeft] = points
+
+  const crossProduct = (o: Coord, a: Coord, b: Coord) =>
+    (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x)
 
   const signs = [
-    crossProduct(0, 1, 2),
-    crossProduct(1, 2, 3),
-    crossProduct(2, 3, 0),
-    crossProduct(3, 0, 1)
+    crossProduct(topLeft, topRight, bottomRight),
+    crossProduct(topRight, bottomRight, bottomLeft),
+    crossProduct(bottomRight, bottomLeft, topLeft),
+    crossProduct(bottomLeft, topLeft, topRight)
   ]
 
   const pos = signs.every(s => s > 0)
@@ -55,14 +56,14 @@ function validateCoords(coords: Coords, imgW: number, imgH: number): string | nu
 
   const area =
     Math.abs(
-      (points[0].x * points[1].y -
-        points[1].x * points[0].y +
-        points[1].x * points[2].y -
-        points[2].x * points[1].y +
-        points[2].x * points[3].y -
-        points[3].x * points[2].y +
-        points[3].x * points[0].y -
-        points[0].x * points[3].y) /
+      (topLeft.x * topRight.y -
+        topRight.x * topLeft.y +
+        topRight.x * bottomRight.y -
+        bottomRight.x * topRight.y +
+        bottomRight.x * bottomLeft.y -
+        bottomLeft.x * bottomRight.y +
+        bottomLeft.x * topLeft.y -
+        topLeft.x * bottomLeft.y) /
         2
     )
 
@@ -95,6 +96,7 @@ function PerspectiveEditor({
 
   useEffect(() => {
     const svg = svgRef.current
+
     if (!svg) return
 
     const observer = new ResizeObserver(entries => {
@@ -104,6 +106,7 @@ function PerspectiveEditor({
     })
 
     observer.observe(svg.parentElement!)
+
     return () => observer.disconnect()
   }, [])
 
@@ -203,7 +206,8 @@ function PerspectiveEditor({
 
     function updateMagnifier(px: number, py: number) {
       let dx = magRadius * 0.3
-      let dy = -magRadius * 2.5
+
+      const dy = -magRadius * 2.5
 
       if (px > imageWidth * 0.5) {
         dx = -magRadius * 2.2
