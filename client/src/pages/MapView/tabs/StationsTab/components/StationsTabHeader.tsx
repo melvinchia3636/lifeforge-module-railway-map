@@ -9,7 +9,8 @@ import {
   Listbox,
   ListboxOption,
   SearchInput,
-  Text
+  Text,
+  surface
 } from '@lifeforge/ui'
 
 import LineBadge from '../../../components/LineBadge'
@@ -38,6 +39,7 @@ function StationsTabHeader() {
       mb="lg"
     >
       <Listbox
+        bg={surface.defaultInteractive}
         minWidth="20em"
         renderContent={value => {
           if (value === null || value === '') {

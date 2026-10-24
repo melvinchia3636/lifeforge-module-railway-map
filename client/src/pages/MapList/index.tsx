@@ -5,6 +5,7 @@ import { useModuleTranslation } from '@lifeforge/localization'
 import {
   Button,
   EmptyStateScreen,
+  FAB,
   Grid,
   ModuleHeader,
   SearchInput,
@@ -48,7 +49,11 @@ function MapList() {
       <WithQuery query={mapsQuery}>
         {maps =>
           maps.length > 0 ? (
-            <Grid gap="md" templateCols="repeat(auto-fill, minmax(280px, 1fr))">
+            <Grid
+              gap="md"
+              mb="lg"
+              templateCols="repeat(auto-fill, minmax(280px, 1fr))"
+            >
               {maps.map(map => (
                 <MapItem key={map.id} map={map} />
               ))}
@@ -63,6 +68,7 @@ function MapList() {
           )
         }
       </WithQuery>
+      <FAB visibilityBreakpoint="md" onClick={() => open(ModifyMapModal, {})} />
     </>
   )
 }
