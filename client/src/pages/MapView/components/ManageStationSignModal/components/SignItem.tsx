@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import {
-  Box,
   Card,
   ConfirmationModal,
   ContextMenu,
   ContextMenuItem,
   Flex,
+  Image,
   Text,
   surface,
   useModalStore
@@ -28,7 +28,8 @@ function SignItem({
 }) {
   const { open } = useModalStore()
   const queryClient = useQueryClient()
-  const deleteSignMutation = useMutation(
+  
+const deleteSignMutation = useMutation(
     forgeAPI.signs.remove.input({ id: sign.id }).mutationOptions({
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: forgeAPI.signs.list.key })
@@ -37,7 +38,7 @@ function SignItem({
   )
 
   return (
-    <Card bg={surface.light} gap="md" key={sign.id}>
+    <Card key={sign.id} bg={surface.light} gap="md">
       <Flex align="center" justify="between">
         <Flex align="center" gap="sm">
           <LineBadge
@@ -71,23 +72,20 @@ function SignItem({
           />
         </ContextMenu>
       </Flex>
-      <Box flexShrink="0" overflow="hidden" r="md">
-        <img
-          alt=""
-          decoding="async"
-          loading="lazy"
-          src={
-            sign.cropped_image
-              ? forgeAPI.getMedia({ key: sign.cropped_image })
-              : undefined
-          }
-          style={{
-            height: '100%',
-            objectFit: 'contain',
-            width: '100%'
-          }}
-        />
-      </Box>
+      <Image
+        alt=""
+        fallback="tabler:photo"
+        fit="contain"
+        flexShrink="0"
+        overflow="hidden"
+        r="md"
+        src={
+          sign.cropped_image
+            ? forgeAPI.getMedia({ key: sign.cropped_image })
+            : undefined
+        }
+        width="100%"
+      />
     </Card>
   )
 }

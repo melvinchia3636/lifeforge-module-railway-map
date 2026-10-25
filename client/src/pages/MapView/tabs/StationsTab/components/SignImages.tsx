@@ -1,5 +1,5 @@
 import type { InferOutput } from '@lifeforge/api'
-import { Box, Flex, type FlexProps, Stack } from '@lifeforge/ui'
+import { Box, Flex, type FlexProps, Stack, ZoomableImage } from '@lifeforge/ui'
 
 import { forgeAPI } from '@/manifest'
 import { getLineColor } from '@/utils/getLineColor'
@@ -20,42 +20,36 @@ function SignImages({
     <Stack width="auto" {...stackProps}>
       {signs.map(sign => (
         <Flex
-          gap="sm"
           key={sign.id}
-          width={hasMaxWidth ? 'auto' : '100%'}
+          gap="sm"
           maxWidth={hasMaxWidth ? '24em' : undefined}
           minHeight="2.5rem"
+          width={hasMaxWidth ? 'auto' : '100%'}
         >
           <Box
             r="full"
-            width="4px"
             style={{
               backgroundColor: getLineColor(sign.station_code, lines),
               alignSelf: 'stretch'
             }}
+            width="4px"
           />
-          <Box
+          <ZoomableImage
+            alt=""
+            fallback="tabler:photo"
+            fit="contain"
+            height="100%"
+            r="sm"
+            src={
+              sign.cropped_image
+                ? forgeAPI.getMedia({ key: sign.cropped_image })
+                : undefined
+            }
             style={{
               alignSelf: 'stretch'
             }}
-            r="sm"
             width="100%"
-          >
-            <img
-              alt=""
-              decoding="async"
-              loading="lazy"
-              src={
-                sign.cropped_image
-                  ? forgeAPI.getMedia({ key: sign.cropped_image })
-                  : undefined
-              }
-              style={{
-                width: '100%',
-                height: '100%'
-              }}
-            />
-          </Box>
+          />
         </Flex>
       ))}
     </Stack>
