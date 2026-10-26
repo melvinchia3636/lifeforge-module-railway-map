@@ -5,7 +5,7 @@
     "type": "git",
     "url": "https://github.com/melvinchia3636/lifeforge-module-railway-map.git"
   },
-  "version": "0.0.5",
+  "version": "0.0.6",
   "type": "module",
   "author": "melvinchia3636 <melvinchia623600@gmail.com>",
   "description": "The ultimate map for MRT and LRT in Malaysia and Singapore",
