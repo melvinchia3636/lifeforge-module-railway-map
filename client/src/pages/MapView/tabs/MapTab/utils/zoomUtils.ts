@@ -36,7 +36,7 @@ export function setupZooming(
       selection: d3.Selection<SVGSVGElement, unknown, null, undefined>,
       transform: d3.ZoomTransform
     ) => void,
-    d3.zoomIdentity.scale(initialScale).translate(centerTx, centerTy)
+    d3.zoomIdentity.translate(centerTx, centerTy).scale(initialScale)
   )
 
   g.attr(
@@ -74,46 +74,41 @@ export function centerMapOnStation(
   const targetTx = width / 2 - x * scale
   const targetTy = height / 2 - y * scale
 
-  if (needZoom) {
-    svg
-      .transition()
-      .duration(duration / 2)
-      .call(
-        zoomBehavior.transform as unknown as (
-          transition: d3.Transition<SVGSVGElement, unknown, null, undefined>,
-          ...args: any[]
-        ) => void,
-        d3.zoomIdentity.translate(centerTx, centerTy).scale(initialScale)
-      )
+  const zoomTo = (
+    transition: d3.Transition<SVGSVGElement, unknown, null, undefined>,
+    transform: d3.ZoomTransform,
+    onEnd?: () => void
+  ) => {
+    transition.call(
+      zoomBehavior.transform as unknown as (
+        transition: d3.Transition<SVGSVGElement, unknown, null, undefined>,
+        transform: d3.ZoomTransform
+      ) => void,
+      transform
+    )
 
-    g.transition()
-      .duration(duration / 2)
-      .attr(
-        'transform',
-        `translate(${centerTx}, ${centerTy}) scale(${initialScale})`
-      )
+    if (onEnd) {
+      transition.on('end', onEnd)
+    }
   }
 
-  setTimeout(
-    () => {
-      svg
-        .transition()
-        .duration(duration)
-        .call(
-          zoomBehavior.transform as unknown as (
-            transition: d3.Transition<SVGSVGElement, unknown, null, undefined>,
-            ...args: any[]
-          ) => void,
+  if (needZoom) {
+    zoomTo(
+      svg.transition().duration(duration / 2),
+      d3.zoomIdentity.translate(centerTx, centerTy).scale(initialScale),
+      () => {
+        zoomTo(
+          svg.transition().duration(duration),
           d3.zoomIdentity.translate(targetTx, targetTy).scale(scale)
         )
+      }
+    )
 
-      g.transition()
-        .duration(duration)
-        .attr(
-          'transform',
-          `translate(${targetTx}, ${targetTy}) scale(${scale})`
-        )
-    },
-    needZoom ? duration / 2 : 0
+    return
+  }
+
+  zoomTo(
+    svg.transition().duration(duration),
+    d3.zoomIdentity.translate(targetTx, targetTy).scale(scale)
   )
 }

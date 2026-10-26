@@ -12,10 +12,10 @@ import ManageStationSignModal from '@/pages/MapView/components/ManageStationSign
 import type { MapStation } from '@/providers/RailwayMapProvider'
 import { filterStationCode } from '@/utils/filterStationCode'
 
-import SignImages from '../../components/SignImages'
-import StationCodes from '../../components/StationCodes'
-import { useStationsTabContext } from '../../contexts/StationsTabContext'
-import useFilter from '../../hooks/useFilter'
+import SignImages from './SignImages'
+import StationCodes from './StationCodes'
+import { useStationsTabContext } from '../contexts/StationsTabContext'
+import useFilter from '../hooks/useFilter'
 
 function StationListItem({ station }: { station: MapStation }) {
   const { open } = useModalStore()

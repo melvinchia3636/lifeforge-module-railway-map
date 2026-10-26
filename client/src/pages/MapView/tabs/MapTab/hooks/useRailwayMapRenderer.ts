@@ -1,6 +1,6 @@
-/* eslint-disable react-compiler/react-compiler */
 import * as d3 from 'd3'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import tinycolor from 'tinycolor2'
 
 import { usePersonalization } from '@lifeforge/ui'
 
@@ -8,6 +8,7 @@ import { useRailwayMapContext } from '@/providers/RailwayMapProvider'
 import type { MapLine, MapStation } from '@/providers/RailwayMapProvider'
 import renderLines from '../renderer/renderLines'
 import renderStations from '../renderer/renderStations'
+import { getStationStatusColor } from '../utils/getStationStatusColor'
 import { setupZooming } from '../utils/zoomUtils'
 
 function isStationVisible(
@@ -62,6 +63,8 @@ export function useRailwayMapRenderer({
   } = useRailwayMapContext()
 
   const isInitializedRef = useRef(false)
+  const labelWidthCacheRef = useRef(new Map<string, number>())
+  const [labelEpoch, setLabelEpoch] = useState(0)
 
   const lines = map?.lines || []
   const stations = map?.stations || []
@@ -83,6 +86,19 @@ export function useRailwayMapRenderer({
       isInitializedRef.current = false
     }
   }, [svgRef, gRef, centerStation])
+
+  useEffect(() => {
+    const handleFontsLoaded = () => {
+      labelWidthCacheRef.current.clear()
+      setLabelEpoch(epoch => epoch + 1)
+    }
+
+    document.fonts.addEventListener('loadingdone', handleFontsLoaded)
+
+    return () => {
+      document.fonts.removeEventListener('loadingdone', handleFontsLoaded)
+    }
+  }, [])
 
   useEffect(() => {
     if (!gRef.current || !isInitializedRef.current) return
@@ -114,16 +130,70 @@ export function useRailwayMapRenderer({
       gRef,
       centerStation,
       showCollectionStatus,
-      collectedCodes
+      collectedCodes,
+      labelWidthCache: labelWidthCacheRef.current
     })
-  }, [
-    map,
-    bgTempPalette,
-    darkMode,
-    selectedStation,
-    centerStation,
-    hiddenLines,
-    showCollectionStatus,
-    collectedCodes
-  ])
+  }, [map, bgTempPalette, darkMode, hiddenLines, labelEpoch])
+
+  useEffect(() => {
+    if (!gRef.current || !isInitializedRef.current) return
+
+    const g = d3.select(gRef.current)
+    const selectedId = selectedStation?.id ?? null
+    const selectedStroke = darkMode ? '#ffffff' : '#000000'
+    const defaultStroke = bgTempPalette[darkMode ? 900 : 100]!
+
+    g.selectAll<SVGGElement, MapStation>('g.station-group').each(
+      function (station) {
+        const group = d3.select(this)
+        const isSelected = station.id === selectedId
+
+        group
+          .select('.station-outline')
+          .attr('stroke', isSelected ? selectedStroke : defaultStroke)
+          .attr('stroke-width', isSelected ? 4 : 2)
+
+        group
+          .select('.station-single-badge')
+          .attr('stroke', isSelected ? selectedStroke : defaultStroke)
+          .attr('stroke-width', isSelected ? 2.5 : 1)
+      }
+    )
+  }, [selectedStation, darkMode, bgTempPalette])
+
+  useEffect(() => {
+    if (!gRef.current || !isInitializedRef.current) return
+
+    const g = d3.select(gRef.current)
+
+    g.selectAll<SVGGElement, MapStation>('g.station-group').each(
+      function (station) {
+        const group = d3.select(this)
+        const statusColor = getStationStatusColor(station, collectedCodes)
+        const statusTextColor = tinycolor(statusColor).isDark()
+          ? '#ffffff'
+          : '#000000'
+        const badgeColor = showCollectionStatus ? statusColor : null
+
+        group
+          .selectAll<SVGPathElement, unknown>('.station-code-badge')
+          .each(function () {
+            const badge = d3.select(this)
+
+            badge.attr('fill', badgeColor ?? badge.attr('data-line-color'))
+          })
+
+        group
+          .selectAll<SVGTextElement, unknown>('.station-code-text')
+          .each(function () {
+            const text = d3.select(this)
+
+            text.attr(
+              'fill',
+              badgeColor ? statusTextColor : text.attr('data-line-color')
+            )
+          })
+      }
+    )
+  }, [showCollectionStatus, collectedCodes])
 }

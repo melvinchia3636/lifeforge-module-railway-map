@@ -1,13 +1,12 @@
 import * as d3 from 'd3'
 import tinycolor from 'tinycolor2'
 
-import { COLORS } from '@lifeforge/ui'
-
 import type { MapLine, MapStation } from '@/providers/RailwayMapProvider'
 
+import { getStationStatusColor } from '../utils/getStationStatusColor'
 import { centerMapOnStation } from '../utils/zoomUtils'
 import getBoxPath from './getBoxPath'
-import renderStationLabel from './renderStationLabel'
+import { appendStationLabel, positionStationLabel } from './renderStationLabel'
 
 function renderStations({
   g,
@@ -21,7 +20,8 @@ function renderStations({
   gRef,
   centerStation,
   showCollectionStatus,
-  collectedCodes
+  collectedCodes,
+  labelWidthCache
 }: {
   g: d3.Selection<SVGGElement, unknown, null, undefined>
   stations: MapStation[]
@@ -35,24 +35,21 @@ function renderStations({
   centerStation: MapStation | undefined
   showCollectionStatus: boolean
   collectedCodes: Set<string>
+  labelWidthCache: Map<string, number>
 }) {
+  const labels: {
+    station: MapStation
+    element: d3.Selection<SVGTextElement, MapStation, null, undefined>
+  }[] = []
+
   for (const station of stations) {
     const isSelected = selectedStation?.id === station.id
-
-    const totalCodes = station.codes?.length ?? 0
-    const collectedCount = (station.codes ?? []).filter(code =>
-      collectedCodes.has(code)
-    ).length
-
-    const statusColor =
-      totalCodes > 0 && collectedCount === totalCodes
-        ? COLORS['green-500']
-        : collectedCount > 0
-          ? COLORS['yellow-500']
-          : COLORS['bg-500']
+    const statusColor = getStationStatusColor(station, collectedCodes)
 
     const stationGroup = g
       .append('g')
+      .datum(station)
+      .attr('class', 'station-group')
       .style('cursor', 'pointer')
       .on('click', (event: MouseEvent) => {
         event.stopPropagation()
@@ -77,6 +74,7 @@ function renderStations({
 
       stationGroup
         .append('path')
+        .attr('class', 'station-outline')
         .attr(
           'd',
           getBoxPath(
@@ -117,12 +115,14 @@ function renderStations({
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-        const color = showCollectionStatus
-          ? statusColor
-          : line?.color || bgTempPalette[darkMode ? 100 : 800]!
+        const baseColor = line?.color || bgTempPalette[darkMode ? 100 : 800]!
+        const color = showCollectionStatus ? statusColor : baseColor
         const isDarkColor =
           showCollectionStatus || line ? tinycolor(color).isDark() : false
         const textColor = isDarkColor ? '#ffffff' : '#000000'
+        const baseTextColor = (line ? tinycolor(baseColor).isDark() : false)
+          ? '#ffffff'
+          : '#000000'
 
         let position: 'first' | 'middle' | 'last' | 'single' = 'middle'
 
@@ -136,6 +136,8 @@ function renderStations({
 
         stationGroup
           .append('path')
+          .attr('class', 'station-code-badge')
+          .attr('data-line-color', baseColor)
           .attr(
             'd',
             getBoxPath(currentX, station.y - 7, w, 14, 2.5, 1.2, position)
@@ -145,6 +147,8 @@ function renderStations({
 
         stationGroup
           .append('text')
+          .attr('class', 'station-code-text')
+          .attr('data-line-color', baseTextColor)
           .attr('x', currentX + w / 2)
           .attr('y', station.y + 0.8)
           .attr('text-anchor', 'middle')
@@ -171,16 +175,20 @@ function renderStations({
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-      const lineColor = showCollectionStatus
-        ? statusColor
-        : line?.color || bgTempPalette[darkMode ? 100 : 800]!
+      const baseColor = line?.color || bgTempPalette[darkMode ? 100 : 800]!
+      const lineColor = showCollectionStatus ? statusColor : baseColor
       const isDarkLine =
         showCollectionStatus || line ? tinycolor(lineColor).isDark() : false
+      const baseTextColor = (line ? tinycolor(baseColor).isDark() : false)
+        ? '#ffffff'
+        : '#000000'
 
       const boxWidth = Math.max(14, textVal.length * 4.2 + 8)
 
       stationGroup
         .append('path')
+        .attr('class', 'station-code-badge station-single-badge')
+        .attr('data-line-color', baseColor)
         .attr(
           'd',
           getBoxPath(
@@ -207,6 +215,8 @@ function renderStations({
 
       stationGroup
         .append('text')
+        .attr('class', 'station-code-text')
+        .attr('data-line-color', baseTextColor)
         .attr('x', station.x)
         .attr('y', station.y + 0.6)
         .attr('text-anchor', 'middle')
@@ -217,11 +227,32 @@ function renderStations({
         .attr('font-family', 'LTAIdentityMedium')
     }
 
-    renderStationLabel({
-      stationGroup,
+    labels.push({
+      element: appendStationLabel({
+        stationGroup,
+        station,
+        bgTempPalette,
+        darkMode
+      }),
+      station
+    })
+  }
+
+  for (const { station, element } of labels) {
+    if (labelWidthCache.has(station.name)) continue
+
+    const node = element.node()
+
+    if (node) {
+      labelWidthCache.set(station.name, node.getBBox().width)
+    }
+  }
+
+  for (const { station, element } of labels) {
+    positionStationLabel({
       station,
-      bgTempPalette,
-      darkMode
+      textElement: element,
+      width: labelWidthCache.get(station.name) ?? 0
     })
   }
 }

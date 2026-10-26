@@ -76,7 +76,7 @@ function MapView() {
       </Flex>
       <MapTabbedView.Root>
         <MapTabbedView.Selector />
-        <Flex direction="column" flex="1" mt="lg">
+        <Flex direction="column" flex="1" minHeight="0" mt="lg">
           <MapTabbedView.When tabId="map">
             <MapTab />
           </MapTabbedView.When>

@@ -12,10 +12,10 @@ import {
   surface
 } from '@lifeforge/ui'
 
+import { ViewMode } from '..'
 import LineBadge from '../../../components/LineBadge'
 import { useStationsTabContext } from '../contexts/StationsTabContext'
 import useFilter from '../hooks/useFilter'
-import { ViewMode } from '../views'
 
 function StationsTabHeader() {
   const { t } = useModuleTranslation()

@@ -1,19 +1,32 @@
 import { useMemo } from 'react'
 
-import { Scrollbar, Stack } from '@lifeforge/ui'
+import { Box, VirtualGrid, createViewMode } from '@lifeforge/ui'
 
 import { useRailwayMapContext } from '@/providers/RailwayMapProvider'
 import { filterStationCode } from '@/utils/filterStationCode'
 
 import StationsTabHeader from './components/StationsTabHeader'
-import { StationsTabProvider } from './contexts/StationsTabContext'
+import {
+  StationsTabProvider,
+  useStationsTabContext
+} from './contexts/StationsTabContext'
 import useFilter from './hooks/useFilter'
-import { ViewMode } from './views'
-import GridView from './views/GridView'
-import ListView from './views/ListView'
+import StationGridItem from './components/StationGridItem'
+import StationListItem from './components/StationListItem'
+
+export const ViewMode = createViewMode({
+  modes: [
+    { icon: 'tabler:list', value: 'list' },
+    { icon: 'tabler:grid-dots', value: 'grid' }
+  ],
+  selectorProps: {
+    display: { base: 'none', md: 'flex' }
+  }
+})
 
 function StationsTabContent() {
   const { map } = useRailwayMapContext()
+  const { stationSignMap } = useStationsTabContext()
   const { searchQuery, line: lineFilter, sort } = useFilter()
 
   const sorted = useMemo(() => {
@@ -53,16 +66,30 @@ function StationsTabContent() {
   return (
     <ViewMode.Root>
       <StationsTabHeader />
-      <Scrollbar>
-        <Stack mb="lg">
-          <ViewMode.When mode="list">
-            <ListView stations={sorted} />
-          </ViewMode.When>
-          <ViewMode.When mode="grid">
-            <GridView stations={sorted} />
-          </ViewMode.When>
-        </Stack>
-      </Scrollbar>
+      <ViewMode.When mode="list">
+        <Box flex="1" height="100%" minHeight="0" pr="sm" width="100%">
+          <VirtualGrid
+            defaultRowHeight={110}
+            getItemKey={station => station.id}
+            itemMinWidth={Number.MAX_SAFE_INTEGER}
+            items={sorted}
+            remeasureKey={stationSignMap}
+            renderItem={station => <StationListItem station={station} />}
+          />
+        </Box>
+      </ViewMode.When>
+      <ViewMode.When mode="grid">
+        <Box flex="1" height="100%" minHeight="0" pr="sm" width="100%">
+          <VirtualGrid
+            defaultRowHeight={240}
+            getItemKey={station => station.id}
+            itemMinWidth={300}
+            items={sorted}
+            remeasureKey={stationSignMap}
+            renderItem={station => <StationGridItem station={station} />}
+          />
+        </Box>
+      </ViewMode.When>
     </ViewMode.Root>
   )
 }

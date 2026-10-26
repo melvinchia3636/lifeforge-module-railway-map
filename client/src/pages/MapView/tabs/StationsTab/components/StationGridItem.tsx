@@ -13,10 +13,10 @@ import ManageStationSignModal from '@/pages/MapView/components/ManageStationSign
 import type { MapStation } from '@/providers/RailwayMapProvider'
 import { filterStationCode } from '@/utils/filterStationCode'
 
-import SignImages from '../../components/SignImages'
-import StationCodes from '../../components/StationCodes'
-import { useStationsTabContext } from '../../contexts/StationsTabContext'
-import useFilter from '../../hooks/useFilter'
+import SignImages from './SignImages'
+import StationCodes from './StationCodes'
+import { useStationsTabContext } from '../contexts/StationsTabContext'
+import useFilter from '../hooks/useFilter'
 
 function StationGridItem({ station }: { station: MapStation }) {
   const { open } = useModalStore()
@@ -28,7 +28,7 @@ function StationGridItem({ station }: { station: MapStation }) {
   )
 
   return (
-    <Card as="li" direction="column" gap="sm" minWidth="0">
+    <Card direction="column" flex="1" gap="sm" minWidth="0">
       <Flex align="center" gap="md" justify="between" minWidth="0">
         <Stack gap="md">
           <StationCodes
