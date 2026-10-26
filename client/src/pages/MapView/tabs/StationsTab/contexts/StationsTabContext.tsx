@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { createContext, useContext, useMemo } from 'react'
+import { createContext, useContext, useMemo, useState } from 'react'
 
 import type { InferOutput } from '@lifeforge/api'
 
@@ -10,6 +10,8 @@ interface StationsTabContextValue {
   stationSignMap: Map<string, MapStationSign[]>
   lines: { code: string; color: string; name: string }[]
   mapId: string
+  showOriginalImage: boolean
+  toggleOriginalImage: () => void
 }
 
 type MapStationSign = InferOutput<typeof forgeAPI.signs.list>[number]
@@ -23,6 +25,7 @@ export function StationsTabProvider({
 }) {
   const { map } = useRailwayMapContext()
   const signsQuery = useQuery(forgeAPI.signs.list.queryOptions())
+  const [showOriginalImage, setShowOriginalImage] = useState(false)
 
   const stationSignMap = useMemo(() => {
     const signs = signsQuery.data || []
@@ -40,8 +43,20 @@ export function StationsTabProvider({
   const lines = map.lines || []
   const mapId = map.id
 
+  const toggleOriginalImage = () => {
+    setShowOriginalImage(prev => !prev)
+  }
+
   return (
-    <StationsTabContext value={{ stationSignMap, lines, mapId }}>
+    <StationsTabContext
+      value={{
+        stationSignMap,
+        lines,
+        mapId,
+        showOriginalImage,
+        toggleOriginalImage
+      }}
+    >
       {children}
     </StationsTabContext>
   )

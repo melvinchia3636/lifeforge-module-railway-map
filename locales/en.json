@@ -41,7 +41,10 @@
   },
   "misc": {
     "allLines": "All Lines",
-    "counts": "{{lineCount}} lines, {{stationCount}} stations"
+    "counts": "{{lineCount}} lines, {{stationCount}} stations",
+    "originalImage": "Original Image",
+    "noStationsFound": "No stations found",
+    "showCollectionStatus": "Show Collection Status"
   },
   "tabs": {
     "map": "Map",

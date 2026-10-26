@@ -41,7 +41,10 @@
   },
   "misc": {
     "allLines": "所有线路",
-    "counts": "{{lineCount}} 条线路，{{stationCount}} 个车站"
+    "counts": "{{lineCount}} 条线路，{{stationCount}} 个车站",
+    "originalImage": "原始图片",
+    "noStationsFound": "未找到车站",
+    "showCollectionStatus": "显示收集状态"
   },
   "tabs": {
     "map": "地图",

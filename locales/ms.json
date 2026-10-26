@@ -41,7 +41,10 @@
   },
   "misc": {
     "allLines": "Semua Laluan",
-    "counts": "{{lineCount}} laluan, {{stationCount}} stesen"
+    "counts": "{{lineCount}} laluan, {{stationCount}} stesen",
+    "originalImage": "Imej Asal",
+    "noStationsFound": "Tiada stesen ditemui",
+    "showCollectionStatus": "Tunjuk Status Koleksi"
   },
   "tabs": {
     "map": "Peta",

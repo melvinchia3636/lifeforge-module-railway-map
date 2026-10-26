@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 
-import { Scrollbar } from '@lifeforge/ui'
+import { Scrollbar, Stack } from '@lifeforge/ui'
 
 import { useRailwayMapContext } from '@/providers/RailwayMapProvider'
 import { filterStationCode } from '@/utils/filterStationCode'
@@ -31,10 +31,8 @@ function StationsTabContent() {
       )
       .sort((a, b) => {
         if (sort === 'stationCode') {
-          const aCode =
-            filterStationCode(a.codes || [], lineFilter)[0] ?? ''
-          const bCode =
-            filterStationCode(b.codes || [], lineFilter)[0] ?? ''
+          const aCode = filterStationCode(a.codes || [], lineFilter)[0] ?? ''
+          const bCode = filterStationCode(b.codes || [], lineFilter)[0] ?? ''
 
           const [, aLetters = '', aNumStr = ''] =
             aCode.match(/^([A-Za-z]+)(\d*)/) ?? []
@@ -56,12 +54,14 @@ function StationsTabContent() {
     <ViewMode.Root>
       <StationsTabHeader />
       <Scrollbar>
-        <ViewMode.When mode="list">
-          <ListView stations={sorted} />
-        </ViewMode.When>
-        <ViewMode.When mode="grid">
-          <GridView stations={sorted} />
-        </ViewMode.When>
+        <Stack mb="lg">
+          <ViewMode.When mode="list">
+            <ListView stations={sorted} />
+          </ViewMode.When>
+          <ViewMode.When mode="grid">
+            <GridView stations={sorted} />
+          </ViewMode.When>
+        </Stack>
       </Scrollbar>
     </ViewMode.Root>
   )

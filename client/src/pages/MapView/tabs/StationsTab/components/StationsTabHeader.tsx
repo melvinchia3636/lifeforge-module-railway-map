@@ -1,6 +1,5 @@
 import { useModuleTranslation } from '@lifeforge/localization'
 import {
-  Box,
   ContextMenu,
   ContextMenuGroup,
   ContextMenuItem,
@@ -20,7 +19,9 @@ import { ViewMode } from '../views'
 
 function StationsTabHeader() {
   const { t } = useModuleTranslation()
-  const { lines } = useStationsTabContext()
+
+  const { lines, showOriginalImage, toggleOriginalImage } =
+    useStationsTabContext()
 
   const {
     searchQuery,
@@ -40,7 +41,9 @@ function StationsTabHeader() {
     >
       <Listbox
         bg={surface.defaultInteractive}
+        height="100%"
         minWidth="20em"
+        py={{ base: 'md', md: 'sm' }}
         renderContent={value => {
           if (value === null || value === '') {
             return <Text truncate>{t('misc.allLines')}</Text>
@@ -61,7 +64,7 @@ function StationsTabHeader() {
         width={{ base: '100%', md: 'auto' }}
         onChange={value => updateFilter('line', value ?? '')}
       >
-        <ListboxOption label="misc.allLines" value={null} />
+        <ListboxOption label={t('misc.allLines')} value={null} />
         {lines.map(line => (
           <ListboxOption
             key={line.code}
@@ -77,35 +80,37 @@ function StationsTabHeader() {
       </Listbox>
       <Flex align="center" gap="md" width="100%">
         <SearchInput
-          flex="1"
           searchTarget="station"
           value={searchQuery}
+          width="100%"
           onChange={setSearchQuery}
         />
-        <Box display={{ base: 'block', md: 'none' }}>
-          <ContextMenu>
-            <ViewMode.ContextMenuSelector />
-            <ContextMenuGroup
-              icon="tabler:filter"
-              label={t(`sortTypes.sortBy`)}
-            >
-              <ContextMenuItem
-                checked={sort === 'name'}
-                icon="tabler:abc"
-                label="sortTypes.name"
-                onClick={() => updateFilter('sort', 'name')}
-              />
-              <ContextMenuItem
-                checked={sort === 'code'}
-                icon="tabler:number-123"
-                label="sortTypes.stationCode"
-                onClick={() => updateFilter('sort', 'stationCode')}
-              />
-            </ContextMenuGroup>
-          </ContextMenu>
-        </Box>
+        <ContextMenu display={{ base: 'block', md: 'none' }}>
+          <ViewMode.ContextMenuSelector />
+          <ContextMenuGroup icon="tabler:filter" label={t(`sortTypes.sortBy`)}>
+            <ContextMenuItem
+              checked={sort === 'name'}
+              icon="tabler:abc"
+              label="sortTypes.name"
+              onClick={() => updateFilter('sort', 'name')}
+            />
+            <ContextMenuItem
+              checked={sort === 'code'}
+              icon="tabler:number-123"
+              label="sortTypes.stationCode"
+              onClick={() => updateFilter('sort', 'stationCode')}
+            />
+          </ContextMenuGroup>
+          <ContextMenuItem
+            checked={showOriginalImage}
+            icon="tabler:photo"
+            label="misc.originalImage"
+            onClick={toggleOriginalImage}
+          />
+        </ContextMenu>
       </Flex>
       <Listbox
+        bg={surface.defaultInteractive}
         display={{ base: 'none', md: 'flex' }}
         minWidth="16em"
         renderContent={value => (
@@ -121,6 +126,14 @@ function StationsTabHeader() {
         <ListboxOption label={t(`sortTypes.stationCode`)} value="stationCode" />
       </Listbox>
       <ViewMode.Selector />
+      <ContextMenu display={{ base: 'none', md: 'block' }}>
+        <ContextMenuItem
+          checked={showOriginalImage}
+          icon="tabler:photo"
+          label="misc.originalImage"
+          onClick={toggleOriginalImage}
+        />
+      </ContextMenu>
     </Flex>
   )
 }

@@ -1,6 +1,8 @@
 import * as d3 from 'd3'
 import tinycolor from 'tinycolor2'
 
+import { COLORS } from '@lifeforge/ui'
+
 import type { MapLine, MapStation } from '@/providers/RailwayMapProvider'
 
 import { centerMapOnStation } from '../utils/zoomUtils'
@@ -17,7 +19,9 @@ function renderStations({
   setSelectedStation,
   svgRef,
   gRef,
-  centerStation
+  centerStation,
+  showCollectionStatus,
+  collectedCodes
 }: {
   g: d3.Selection<SVGGElement, unknown, null, undefined>
   stations: MapStation[]
@@ -29,9 +33,23 @@ function renderStations({
   svgRef: React.RefObject<SVGSVGElement | null>
   gRef: React.RefObject<SVGGElement | null>
   centerStation: MapStation | undefined
+  showCollectionStatus: boolean
+  collectedCodes: Set<string>
 }) {
   for (const station of stations) {
     const isSelected = selectedStation?.id === station.id
+
+    const totalCodes = station.codes?.length ?? 0
+    const collectedCount = (station.codes ?? []).filter(code =>
+      collectedCodes.has(code)
+    ).length
+
+    const statusColor =
+      totalCodes > 0 && collectedCount === totalCodes
+        ? COLORS['green-500']
+        : collectedCount > 0
+          ? COLORS['yellow-500']
+          : COLORS['bg-500']
 
     const stationGroup = g
       .append('g')
@@ -99,8 +117,11 @@ function renderStations({
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-        const color = line?.color || bgTempPalette[darkMode ? 100 : 800]!
-        const isDarkColor = line ? tinycolor(color).isDark() : false
+        const color = showCollectionStatus
+          ? statusColor
+          : line?.color || bgTempPalette[darkMode ? 100 : 800]!
+        const isDarkColor =
+          showCollectionStatus || line ? tinycolor(color).isDark() : false
         const textColor = isDarkColor ? '#ffffff' : '#000000'
 
         let position: 'first' | 'middle' | 'last' | 'single' = 'middle'
@@ -150,8 +171,11 @@ function renderStations({
             cleanStationCode.startsWith(cleanLineCode)
           )
         })
-      const lineColor = line?.color || bgTempPalette[darkMode ? 100 : 800]!
-      const isDarkLine = line ? tinycolor(lineColor).isDark() : false
+      const lineColor = showCollectionStatus
+        ? statusColor
+        : line?.color || bgTempPalette[darkMode ? 100 : 800]!
+      const isDarkLine =
+        showCollectionStatus || line ? tinycolor(lineColor).isDark() : false
 
       const boxWidth = Math.max(14, textVal.length * 4.2 + 8)
 

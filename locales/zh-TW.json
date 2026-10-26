@@ -41,7 +41,10 @@
   },
   "misc": {
     "allLines": "所有路線",
-    "counts": "{{lineCount}} 條路線，{{stationCount}} 個車站"
+    "counts": "{{lineCount}} 條路線，{{stationCount}} 個車站",
+    "originalImage": "原始圖片",
+    "noStationsFound": "未找到車站",
+    "showCollectionStatus": "顯示收集狀態"
   },
   "tabs": {
     "map": "地圖",
