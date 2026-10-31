@@ -23,11 +23,13 @@ function EditSignPhotoModal({
   const [imageLoading, setImageLoading] = useState(true)
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imageDimensions, setImageDimensions] = useState<{
+  
+const [imageDimensions, setImageDimensions] = useState<{
     width: number
     height: number
   } | null>(null)
-  const [coords, setCoords] = useState<Coords | null>(null)
+  
+const [coords, setCoords] = useState<Coords | null>(null)
 
   useEffect(() => {
     if (!sign.image) return
@@ -143,7 +145,7 @@ function EditSignPhotoModal({
             onCoordsChange={setCoords}
           />
 
-          <Button mt="lg" width="100%" loading={loading} onClick={handleSubmit}>
+          <Button loading={loading} mt="lg" width="100%" onClick={handleSubmit}>
             Save
           </Button>
         </>

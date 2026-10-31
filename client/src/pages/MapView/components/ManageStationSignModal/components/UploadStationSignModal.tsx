@@ -40,11 +40,13 @@ function UploadStationSignModal({
   const [selectedCode, setSelectedCode] = useState(stationCodes[0] || '')
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null)
   const [imageFile, setImageFile] = useState<File | null>(null)
-  const [imageDimensions, setImageDimensions] = useState<{
+  
+const [imageDimensions, setImageDimensions] = useState<{
     width: number
     height: number
   } | null>(null)
-  const [coords, setCoords] = useState<Coords | null>(null)
+  
+const [coords, setCoords] = useState<Coords | null>(null)
   const [loading, setLoading] = useState(false)
 
   const handleFileChange = (value: { type: string; file?: File }) => {
@@ -161,10 +163,10 @@ function UploadStationSignModal({
           />
           <Button
             disabled={!imageFile}
-            onClick={() => setStep('adjust')}
-            width="100%"
-            mt="lg"
             loading={loading}
+            mt="lg"
+            width="100%"
+            onClick={() => setStep('adjust')}
           >
             Proceed
           </Button>
@@ -184,7 +186,7 @@ function UploadStationSignModal({
             imageWidth={imageDimensions.width}
             onCoordsChange={setCoords}
           />
-          <Button mt="lg" width="100%" loading={loading} onClick={handleSubmit}>
+          <Button loading={loading} mt="lg" width="100%" onClick={handleSubmit}>
             Upload
           </Button>
         </>

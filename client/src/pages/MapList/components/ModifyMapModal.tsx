@@ -84,7 +84,7 @@ function ModifyMapModal({ onClose }: { onClose: () => void }) {
       submissionConfig={{
         template: 'create',
         handler: async formData => {
-          const fileValue = formData.file as z.infer<typeof fileValueSchema>
+          const fileValue = formData.file
 
           if (fileValue.type !== 'upload') {
             toast.error('Please select a JSON map data file')
