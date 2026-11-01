@@ -27,7 +27,8 @@ const stationSchema = z.object({
 
 const mapDto = createSelectSchema(railwayMaps).extend({
   lines: z.array(lineSchema),
-  stations: z.array(stationSchema)
+  stations: z.array(stationSchema),
+  line_completed_at: z.record(z.string(), z.string())
 })
 
 export const list = forge

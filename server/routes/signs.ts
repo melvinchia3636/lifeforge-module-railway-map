@@ -6,6 +6,7 @@ import z from 'zod'
 import forge from '../forge'
 import { stationSigns } from '../schema.drizzle'
 import { applyPerspectiveCorrection } from '../utils/signImage'
+import { syncLineCompletionDates } from '../utils/syncLineCompletion'
 
 const cropCoordsSchema = z.object({
   topLeft: z.object({ x: z.number(), y: z.number() }),
@@ -132,6 +133,8 @@ export const upload = forge
         return response.badRequest('Failed to create station sign')
       }
 
+      await syncLineCompletionDates(db)
+
       return response.created(record)
     }
   )
@@ -248,6 +251,8 @@ export const remove = forge
     }
 
     await db.delete(stationSigns).where(eq(stationSigns.id, id))
+
+    await syncLineCompletionDates(db)
 
     return response.noContent()
   })

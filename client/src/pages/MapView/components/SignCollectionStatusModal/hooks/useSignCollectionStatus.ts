@@ -20,31 +20,35 @@ export function useSignCollectionStatus(
   )
 
   const lineStatuses = useMemo(() => {
-    return lines.map(line => {
-      const lineStations = stations.filter(s => s.lines.includes(line.code))
+    return lines
+      .map(line => {
+        const lineStations = stations.filter(s => s.lines.includes(line.code))
 
-      const codes: string[] = []
+        const codes: string[] = []
 
-      for (const station of lineStations) {
-        if (!station.codes) continue
+        for (const station of lineStations) {
+          if (!station.codes) continue
 
-        const filtered = filterStationCode(station.codes, line.code)
-        codes.push(...filtered)
-      }
+          const filtered = filterStationCode(station.codes, line.code)
+          codes.push(...filtered)
+        }
 
-      const uniqueCodes = [...new Set(codes)]
-      const collected = uniqueCodes.filter(c => collectedCodes.has(c)).length
-      const total = uniqueCodes.length
+        const uniqueCodes = [...new Set(codes)]
+        const collected = uniqueCodes.filter(c => collectedCodes.has(c)).length
+        const total = uniqueCodes.length
 
-      return {
-        code: line.code,
-        name: line.name,
-        color: line.color,
-        collected,
-        total,
-        percentage: total > 0 ? Math.round((collected / total) * 100) : 0
-      }
-    })
+        return {
+          code: line.code,
+          name: line.name,
+          color: line.color,
+          collected,
+          total,
+          percentage: total > 0 ? Math.round((collected / total) * 100) : 0
+        }
+      })
+      .sort(
+        (a, b) => Number(b.percentage === 100) - Number(a.percentage === 100)
+      )
   }, [lines, stations, collectedCodes])
 
   const { totalCodes, collectedTotal } = useMemo(() => {

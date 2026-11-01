@@ -119,6 +119,9 @@ export interface EndpointMapsCreate_OutputCREATED {
     textOffsetY?: number;
     textAnchor?: string;
   }[];
+  line_completed_at: {
+    [k: string]: string;
+  };
   created: string;
   updated: string;
 }
@@ -157,6 +160,9 @@ export interface EndpointMapsGet_OutputOK {
     textOffsetY?: number;
     textAnchor?: string;
   }[];
+  line_completed_at: {
+    [k: string]: string;
+  };
   created: string;
   updated: string;
 }
@@ -208,6 +214,9 @@ export interface EndpointMapsUpdate_OutputOK {
     textOffsetY?: number;
     textAnchor?: string;
   }[];
+  line_completed_at: {
+    [k: string]: string;
+  };
   created: string;
   updated: string;
 }

@@ -25,6 +25,9 @@ export interface RailwayStation {
   textAnchor?: string
 }
 
+/** Line code -> ISO timestamp of the moment the line was completed. */
+export type LineCompletionDates = Record<string, string>
+
 export interface CropCoords {
   topLeft: { x: number; y: number }
   topRight: { x: number; y: number }
@@ -38,6 +41,10 @@ export const railwayMaps = pgTable('map', {
   country: text('country').notNull().default(''),
   lines: jsonb('lines').$type<RailwayLine[]>().notNull().default([]),
   stations: jsonb('stations').$type<RailwayStation[]>().notNull().default([]),
+  line_completed_at: jsonb('line_completed_at')
+    .$type<LineCompletionDates>()
+    .notNull()
+    .default({}),
   created: timestamp('created', { mode: 'date' }).defaultNow().notNull(),
   updated: timestamp('updated', { mode: 'date' }).defaultNow().notNull()
 })
