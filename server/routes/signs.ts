@@ -1,13 +1,11 @@
-import { execFile } from 'child_process'
 import { eq } from 'drizzle-orm'
 import { createSelectSchema } from 'drizzle-orm/zod'
 import fs from 'fs'
-import os from 'os'
-import path from 'path'
 import z from 'zod'
 
 import forge from '../forge'
 import { stationSigns } from '../schema.drizzle'
+import { applyPerspectiveCorrection } from '../utils/signImage'
 
 const cropCoordsSchema = z.object({
   topLeft: z.object({ x: z.number(), y: z.number() }),
@@ -62,96 +60,6 @@ function validateCoords(
   }
 
   return null
-}
-
-function dist(
-  a: { x: number; y: number },
-  b: { x: number; y: number }
-): number {
-  return Math.sqrt((b.x - a.x) ** 2 + (b.y - a.y) ** 2)
-}
-
-async function applyPerspectiveCorrection(
-  srcPath: string,
-  coords: {
-    topLeft: { x: number; y: number }
-    topRight: { x: number; y: number }
-    bottomRight: { x: number; y: number }
-    bottomLeft: { x: number; y: number }
-  }
-): Promise<{ croppedBuf: Buffer; imgW: number; imgH: number }> {
-  const identifyResult = await new Promise<{ stdout: string }>(
-    (resolve, reject) => {
-      execFile(
-        'magick',
-        ['identify', '-format', '%w %h', srcPath],
-        (err, stdout) => {
-          if (err) reject(err)
-          else resolve({ stdout })
-        }
-      )
-    }
-  )
-
-  const [imgW, imgH] = identifyResult.stdout.trim().split(' ').map(Number) as [
-    number,
-    number
-  ]
-
-  const dstW = 512
-
-  const srcWidth =
-    (dist(coords.topLeft, coords.topRight) +
-      dist(coords.bottomLeft, coords.bottomRight)) /
-    2
-  const srcHeight =
-    (dist(coords.topLeft, coords.bottomLeft) +
-      dist(coords.topRight, coords.bottomRight)) /
-    2
-
-  const dstH = Math.max(
-    1,
-    Math.round(dstW * (srcHeight / Math.max(1, srcWidth)))
-  )
-
-  const outputPath = path.join(
-    os.tmpdir(),
-    `railway-sign-cropped-${Date.now()}.png`
-  )
-
-  const perspectiveArgs = [
-    `${coords.topLeft.x},${coords.topLeft.y} 0,0`,
-    `${coords.topRight.x},${coords.topRight.y} ${dstW - 1},0`,
-    `${coords.bottomRight.x},${coords.bottomRight.y} ${dstW - 1},${dstH - 1}`,
-    `${coords.bottomLeft.x},${coords.bottomLeft.y} 0,${dstH - 1}`
-  ]
-
-  await new Promise<void>((resolve, reject) => {
-    execFile(
-      'magick',
-      [
-        srcPath,
-        '-set',
-        'option:distort:viewport',
-        `${dstW}x${dstH}+0+0`,
-        '-distort',
-        'Perspective',
-        perspectiveArgs.join(' '),
-        '-strip',
-        outputPath
-      ],
-      err => {
-        if (err) reject(err)
-        else resolve()
-      }
-    )
-  })
-
-  const croppedBuf = fs.readFileSync(outputPath)
-
-  fs.unlinkSync(outputPath)
-
-  return { croppedBuf, imgW, imgH }
 }
 
 export const upload = forge
