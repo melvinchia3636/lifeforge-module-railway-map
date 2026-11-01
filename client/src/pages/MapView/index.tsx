@@ -68,7 +68,8 @@ function MapView() {
             onClick={() =>
               open(SignCollectionStatusModal, {
                 stations: map.stations,
-                lines: map.lines
+                lines: map.lines,
+                lineCompletedAt: map.line_completed_at
               })
             }
           />

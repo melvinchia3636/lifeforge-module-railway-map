@@ -8,7 +8,8 @@ import { forgeAPI } from '@/manifest'
 
 export function useSignCollectionStatus(
   stations: MapStation[],
-  lines: MapLine[]
+  lines: MapLine[],
+  lineCompletedAt: Record<string, string> = {}
 ) {
   const signsQuery = useQuery(forgeAPI.signs.list.queryOptions())
 
@@ -43,13 +44,14 @@ export function useSignCollectionStatus(
           color: line.color,
           collected,
           total,
-          percentage: total > 0 ? Math.round((collected / total) * 100) : 0
+          percentage: total > 0 ? Math.round((collected / total) * 100) : 0,
+          completedAt: lineCompletedAt[line.code]
         }
       })
       .sort(
         (a, b) => Number(b.percentage === 100) - Number(a.percentage === 100)
       )
-  }, [lines, stations, collectedCodes])
+  }, [lines, stations, collectedCodes, lineCompletedAt])
 
   const { totalCodes, collectedTotal } = useMemo(() => {
     const total = lineStatuses.reduce((sum, l) => sum + l.total, 0)

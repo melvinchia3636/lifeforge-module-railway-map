@@ -15,10 +15,14 @@ import { useSignCollectionStatus } from './hooks/useSignCollectionStatus'
 
 function SignCollectionStatusModal({
   onClose,
-  data: { stations: allStations, lines }
+  data: { stations: allStations, lines, lineCompletedAt }
 }: {
   onClose: () => void
-  data: { stations: MapStation[]; lines: MapLine[] }
+  data: {
+    stations: MapStation[]
+    lines: MapLine[]
+    lineCompletedAt: Record<string, string>
+  }
 }) {
   const {
     collectedCodes,
@@ -26,7 +30,7 @@ function SignCollectionStatusModal({
     totalCodes,
     collectedTotal,
     overallPercentage
-  } = useSignCollectionStatus(allStations, lines)
+  } = useSignCollectionStatus(allStations, lines, lineCompletedAt)
 
   if (lineStatuses.length === 0 || totalCodes === 0) {
     return (

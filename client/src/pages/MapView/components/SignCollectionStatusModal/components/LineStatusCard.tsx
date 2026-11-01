@@ -1,3 +1,5 @@
+import dayjs from 'dayjs'
+
 import { Box, Card, Flex, Text, surface } from '@lifeforge/ui'
 
 import LineBadge from '@/pages/MapView/components/LineBadge'
@@ -9,6 +11,7 @@ interface LineStatus {
   collected: number
   total: number
   percentage: number
+  completedAt?: string
 }
 
 function LineStatusCard({ line }: { line: LineStatus }) {
@@ -22,7 +25,21 @@ function LineStatusCard({ line }: { line: LineStatus }) {
     >
       <Flex align="center" gap="sm" minWidth="0" width="100%">
         <LineBadge code={line.code} color={line.color} />
-        <Text truncate>{line.name}</Text>
+        <Flex direction="column" flex="1" minWidth="0">
+          <Text truncate as="p">
+            {line.name}
+          </Text>
+          <Text
+            truncate
+            as="p"
+            color={line.completedAt ? 'green-500' : 'muted'}
+            size="sm"
+          >
+            {line.completedAt
+              ? `Completed on ${dayjs(line.completedAt).format('DD/MM/YYYY')}`
+              : 'Not completed'}
+          </Text>
+        </Flex>
       </Flex>
       <Flex
         align="center"
